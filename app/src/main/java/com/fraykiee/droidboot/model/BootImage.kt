@@ -10,13 +10,13 @@ enum class FirmwareMode(
     /** Эмуляция CD-ROM (El Torito). Самый совместимый вариант: грузится и в UEFI, и в BIOS. */
     UEFI_CDROM(isCdrom = true, removable = true),
 
-    /** Removable-диск без CD-эмуляции. Для isohybrid ISO и .img — ведёт себя как обычная флешка. */
+    /** Removable-диск без CD-эмуляции. Для isohybrid ISO и .img - ведёт себя как обычная флешка. */
     BIOS_USB_HDD(isCdrom = false, removable = true),
 
     /**
      * «Сырой» диск с removable=0 (фиксированный HDD). Старые Award/Phoenix BIOS видят
      * USB-носитель только как жёсткий диск и грузятся с него из Hard Disk Boot Priority,
-     * а removable-устройство в этот список не попадает. Образ — isohybrid ISO или .img.
+     * а removable-устройство в этот список не попадает. Образ - isohybrid ISO или .img.
      */
     LEGACY_FIXED_DISK(isCdrom = false, removable = false);
 }

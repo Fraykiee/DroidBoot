@@ -12,7 +12,7 @@ import com.fraykiee.droidboot.root.RootShell
  * и привязываем гаджет к UDC (USB Device Controller). Хост-ПК видит флешку.
  *
  * ВАЖНО про совместимость:
- *  - Путь к configfs и имя UDC на разных устройствах отличаются — мы их определяем.
+ *  - Путь к configfs и имя UDC на разных устройствах отличаются - мы их определяем.
  *  - У большинства телефонов UDC уже занят штатным гаджетом (ADB/MTP). Его надо
  *    временно отвязать, а при остановке вернуть обратно.
  */
@@ -62,10 +62,10 @@ class UsbGadgetManager {
 
     /**
      * Класс USB-контроллера определяет, заработает ли mass_storage без краша.
-     *  - DWC3/DWC2 (Qualcomm Snapdragon, многие SoC) — энумерация накопителя стабильна.
+     *  - DWC3/DWC2 (Qualcomm Snapdragon, многие SoC) - энумерация накопителя стабильна.
      *    Проверено живьём на Mi 8 Lite (SDM660, a800000.dwc3): хост видит «Linux
      *    File-Stor Gadget», ядро не падает.
-     *  - MUSB (вендорные ядра MediaTek) — энумерация mass_storage роняет ядро в
+     *  - MUSB (вендорные ядра MediaTek) - энумерация mass_storage роняет ядро в
      *    musb_g_ep0_irq (NULL deref, ep1in dma_mapping_error → ребут в прелоадер).
      *    Баг ядра, из userspace не чинится. Проверено на Helio G100 (musb-hdrc).
      */
@@ -124,7 +124,7 @@ class UsbGadgetManager {
     private fun prop(name: String): String =
         RootShell.exec("getprop $name").text.trim()
 
-    /** Снимок состояния USB-стека — чтобы понять, почему гаджет не встаёт. */
+    /** Снимок состояния USB-стека - чтобы понять, почему гаджет не встаёт. */
     fun dumpDiagnostics(): String = buildString {
         appendLine("sys.usb.config     = ${prop("sys.usb.config")}")
         appendLine("sys.usb.state      = ${prop("sys.usb.state")}")
@@ -136,7 +136,7 @@ class UsbGadgetManager {
         for (g in lsNames(CONFIGFS)) {
             val base = "$CONFIGFS/$g"
             appendLine("[$g] UDC='${RootShell.readFile("$base/UDC")?.trim().orEmpty()}'")
-            appendLine("  functions: ${lsNames("$base/functions").joinToString().ifBlank { "—" }}")
+            appendLine("  functions: ${lsNames("$base/functions").joinToString().ifBlank { "-" }}")
             for (c in lsNames("$base/configs")) {
                 appendLine("  config $c -> ${lsNames("$base/configs/$c").filter { it != "strings" && it != "MaxPower" && it != "bmAttributes" }.joinToString().ifBlank { "(пусто)" }}")
             }
@@ -156,7 +156,7 @@ class UsbGadgetManager {
                 "grep -rhn 'mass_storage' " +
                 "/system/etc/init /vendor/etc/init /odm/etc/init /init*.rc 2>/dev/null " +
                 "| head -n 15"
-            ).text.ifBlank { "(нет упоминаний — mass_storage-конфига в init нет)" }
+            ).text.ifBlank { "(нет упоминаний - mass_storage-конфига в init нет)" }
         )
     }
 
@@ -176,9 +176,9 @@ class UsbGadgetManager {
         }
 
         // Современный Android (configfs USB HAL) композится через sys.usb.config, а не
-        // ручной привязкой UDC. Если есть системный гаджет — идём property-методом
+        // ручной привязкой UDC. Если есть системный гаджет - идём property-методом
         // (неразрушающий, проверен на Qualcomm SDM660/dwc3 и MT6789/musb-hdrc).
-        // Иначе — legacy «свой гаджет».
+        // Иначе - legacy «свой гаджет».
         if (prop("sys.usb.configfs") == "1" && findSystemGadget() != null) {
             return startViaProperty(image)
         }
@@ -233,7 +233,7 @@ class UsbGadgetManager {
             return State.Error("Не удалось сконфигурировать гаджет", log.toString())
         }
 
-        // 2b. Проверяем, что функция реально влинкована в конфиг — без этого
+        // 2b. Проверяем, что функция реально влинкована в конфиг - без этого
         //     MUSB-контроллер откажется привязываться (EINVAL «Invalid argument»).
         if (!RootShell.exists("$GADGET/configs/c.1/mass_storage.0")) {
             log.append("ВНИМАНИЕ: symlink функции в конфиг не создан, повторяю явно\n")
@@ -243,14 +243,14 @@ class UsbGadgetManager {
             if (ln.err.isNotEmpty()) log.append("  ln -> ${ln.err.joinToString()}\n")
         }
 
-        // 3. Привязать к UDC — момент, когда хост видит подключение.
+        // 3. Привязать к UDC - момент, когда хост видит подключение.
         var bind = RootShell.exec("echo $udc > $GADGET/UDC")
         log.append("echo $udc > UDC -> ${bind.text.ifBlank { "(ok)" }}\n")
         if (!bind.success || bind.err.isNotEmpty()) {
             // Скорее всего UDC занят вендорным USB-HAL (MIUI). Найдём держателя,
             // отвяжем его и повторим.
             val holder = whoHoldsUdc(udc)
-            log.append("UDC '$udc' держит гаджет: ${holder ?: "—"}\n")
+            log.append("UDC '$udc' держит гаджет: ${holder ?: "-"}\n")
             if (holder != null && holder != GADGET) {
                 previousGadgetUdc = holder to udc
                 RootShell.exec("echo '' > $holder/UDC")
@@ -268,7 +268,7 @@ class UsbGadgetManager {
         }
 
         // Проверим, что привязка РЕАЛЬНО состоялась: на sys.usb.config-устройствах
-        // (MUSB/MTK) запись в UDC «успешна», но контроллер не отдаётся — UDC пуст.
+        // (MUSB/MTK) запись в UDC «успешна», но контроллер не отдаётся - UDC пуст.
         val udcBack = RootShell.readFile("$GADGET/UDC")?.trim()
         if (udcBack.isNullOrEmpty() || udcBack != udc) {
             log.append("UDC после привязки = '${udcBack.orEmpty()}' (не закрепился) → фолбэк на property-метод\n")
@@ -295,14 +295,14 @@ class UsbGadgetManager {
     }
 
     /** Имя предсозданной функции mass_storage внутри системного гаджета
-     *  (на MT6789 это mass_storage.usb0, на других — mass_storage.0). */
+     *  (на MT6789 это mass_storage.usb0, на других - mass_storage.0). */
     private fun findMassStorageFunc(sys: String): String? =
         lsNames("$sys/functions").firstOrNull { it.startsWith("mass_storage") }
 
     /**
      * Property-метод для устройств, где USB композится через sys.usb.config (MTK/MUSB,
      * многие Xiaomi). Подкладываем ISO в mass_storage СИСТЕМНОГО гаджета и переключаем
-     * sys.usb.config — init сам перепривязывает контроллер.
+     * sys.usb.config - init сам перепривязывает контроллер.
      */
     fun startViaProperty(image: BootImage, prevLog: StringBuilder = StringBuilder()): State {
         val log = prevLog
@@ -312,11 +312,11 @@ class UsbGadgetManager {
         val sys = findSystemGadget()
             ?: return State.Error(
                 "Не найден системный configfs-гаджет (g1). " +
-                "Нужны init-триггеры sys.usb.config — смотри Диагностику.",
+                "Нужны init-триггеры sys.usb.config - смотри Диагностику.",
                 log.toString(),
             )
         // Используем предсозданную инитом функцию mass_storage (mass_storage.usb0 на
-        // MT6789), иначе создаём свою — её init залинкует по триггеру sys.usb.config.
+        // MT6789), иначе создаём свою - её init залинкует по триггеру sys.usb.config.
         val msFunc = findMassStorageFunc(sys) ?: "mass_storage.0".also {
             RootShell.exec("mkdir -p $sys/functions/$it/lun.0")
         }
@@ -326,7 +326,7 @@ class UsbGadgetManager {
         val cdrom = if (image.mode.isCdrom) "1" else "0"
         val removable = if (image.mode.removable) "1" else "0"
 
-        // Настраиваем lun и подкладываем образ ДО переключения композиции —
+        // Настраиваем lun и подкладываем образ ДО переключения композиции -
         // init по триггеру делает только symlink функции, файл не трогает.
         RootShell.exec(
             "echo $removable > $lun/removable",
@@ -341,12 +341,12 @@ class UsbGadgetManager {
         }
 
         // Переключаем композицию. ВАЖНО: sys.usb.config после setprop всегда читается
-        // как заданное значение — поэтому судим по sys.usb.state, которое инит
+        // как заданное значение - поэтому судим по sys.usb.state, которое инит
         // выставляет, только если реально отработал USB-триггер.
         previousUsbConfig = prop("sys.usb.config").ifBlank { "adb" }
 
         // MTK init поднимает ЧИСТУЮ композицию "ums" (одна функция mass_storage, без
-        // ffs.adb и без acm) только когда vendor.usb.acm_enable=0 И acm_cnt=0 — правило
+        // ffs.adb и без acm) только когда vendor.usb.acm_enable=0 И acm_cnt=0 - правило
         // init матчится на точное "=0", а по умолчанию эти пропы пустые, и тогда ни одна
         // ветка mass_storage не срабатывает (UDC не привязывается). Выставляем явно.
         RootShell.exec(
@@ -361,7 +361,7 @@ class UsbGadgetManager {
             return state.contains("mass_storage")
         }
 
-        // Голый mass_storage ("ums") — одна функция, без endpoint'а ffs.adb. На MUSB-
+        // Голый mass_storage ("ums") - одна функция, без endpoint'а ffs.adb. На MUSB-
         // контроллере MTK композиция mass_storage+adb при энумерации хостом роняет ядро
         // в musb_g_ep0_irq (NULL deref, ep1in dma_mapping_error → ребут в прелоадер),
         // поэтому adb-комбо допускаем как фолбэк ТОЛЬКО на не-MUSB контроллерах.
@@ -373,7 +373,7 @@ class UsbGadgetManager {
             previousUsbConfig = null
             return State.Error(
                 "init не перешёл в mass_storage (sys.usb.state не изменился). " +
-                "Похоже, в твоей прошивке нет USB-триггера mass_storage — нужен другой токен, " +
+                "Похоже, в твоей прошивке нет USB-триггера mass_storage - нужен другой токен, " +
                 "смотри блок «поддерживаемые sys.usb.config» в Диагностике.",
                 log.toString(),
             )
@@ -384,13 +384,13 @@ class UsbGadgetManager {
 
     /**
      * Опустить наш гаджет и вернуть штатный USB. Безопасно вызывать в любой момент,
-     * в т.ч. когда start() упал на полпути — поэтому это же и «кнопка сброса».
+     * в т.ч. когда start() упал на полпути - поэтому это же и «кнопка сброса».
      */
     fun stop(): State {
         RootShell.exec("echo '' > $GADGET/UDC 2>/dev/null; true")
         teardownGadgetTree()
         restorePreviousGadget()
-        // Если поднимались через property-метод — убрать образ из системного гаджета
+        // Если поднимались через property-метод - убрать образ из системного гаджета
         // и вернуть прежнюю композицию USB.
         findSystemGadget()?.let { sys ->
             findMassStorageFunc(sys)?.let { ms ->

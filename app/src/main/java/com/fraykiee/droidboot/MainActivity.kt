@@ -120,7 +120,7 @@ private fun Screen(vm: MainViewModel) {
                         selected = ui.mode == FirmwareMode.LEGACY_FIXED_DISK,
                         title = "Старый BIOS (фиксированный диск)",
                         subtitle = "removable=0. Для древних Award/Phoenix: ищи телефон в " +
-                            "Hard Disk Boot Priority и подними наверх. Образ — isohybrid ISO / .img.",
+                            "Hard Disk Boot Priority и подними наверх. Образ - isohybrid ISO / .img.",
                         enabled = !ui.active,
                         onClick = { vm.setMode(FirmwareMode.LEGACY_FIXED_DISK) },
                     )
@@ -196,21 +196,21 @@ private fun CapabilityCard(
             } else {
                 CapRow("Root-доступ", caps.hasRoot)
                 CapRow("configfs (/config/usb_gadget)", caps.hasConfigfs)
-                CapRow("UDC найден: ${caps.availableUdc.joinToString().ifEmpty { "—" }}",
+                CapRow("UDC найден: ${caps.availableUdc.joinToString().ifEmpty { "-" }}",
                     caps.availableUdc.isNotEmpty())
                 when (caps.controllerSupport) {
                     com.fraykiee.droidboot.usb.UsbGadgetManager.ControllerSupport.SUPPORTED ->
                         CapRow("USB-контроллер: ${caps.controller} (поддерживается)", true)
                     com.fraykiee.droidboot.usb.UsbGadgetManager.ControllerSupport.KNOWN_BROKEN_MUSB ->
-                        CapRow("USB-контроллер: ${caps.controller} (MUSB — несовместим)", false)
+                        CapRow("USB-контроллер: ${caps.controller} (MUSB - несовместим)", false)
                     com.fraykiee.droidboot.usb.UsbGadgetManager.ControllerSupport.UNKNOWN ->
-                        CapRow("USB-контроллер: ${caps.controller.ifBlank { "—" }} (не проверен)", true)
+                        CapRow("USB-контроллер: ${caps.controller.ifBlank { "-" }} (не проверен)", true)
                 }
                 if (caps.controllerSupport ==
                     com.fraykiee.droidboot.usb.UsbGadgetManager.ControllerSupport.KNOWN_BROKEN_MUSB) {
                     Text(
                         "Контроллер MUSB (вендорное ядро MediaTek) роняет ядро при " +
-                        "энумерации mass_storage хостом — телефон уйдёт в ребут (прелоадер). " +
+                        "энумерации mass_storage хостом - телефон уйдёт в ребут (прелоадер). " +
                         "Это баг ядра, из приложения не чинится. Запуск возможен, но рискован.",
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall,
