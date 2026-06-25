@@ -1,0 +1,9 @@
+# Нормализация переводов строк для кросс-платформенной сборки
+* text=auto eol=lf
+*.bat text eol=crlf
+gradlew text eol=lf
+
+# Бинарники — не трогать
+*.jar binary
+*.png binary
+*.apk binary

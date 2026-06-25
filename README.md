@@ -105,4 +105,4 @@ APK появится в `app/build/outputs/apk/debug/`.
 
 ## Лицензия
 
-См. [LICENSE](LICENSE). *(если файла ещё нет — добавь, напр. MIT или GPL-3.0)*
+[MIT](LICENSE) © 2026 Fraykiee
