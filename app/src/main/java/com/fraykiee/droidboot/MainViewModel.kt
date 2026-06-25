@@ -83,7 +83,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         _ui.value = _ui.value.copy(busy = false, active = false, message = "Отключено")
     }
 
-    /** Принудительный сброс гаджета — безопасно даже после неудачного запуска. */
+    /** Принудительный сброс гаджета - безопасно даже после неудачного запуска. */
     fun reset() = viewModelScope.launch {
         _ui.value = _ui.value.copy(busy = true)
         withContext(Dispatchers.IO) { gadget.stop() }
