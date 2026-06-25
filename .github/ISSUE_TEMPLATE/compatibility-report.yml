@@ -1,0 +1,79 @@
+name: "📋 Отчёт о совместимости / Compatibility report"
+description: "Сообщи, заработал ли DroidBoot на твоём устройстве (контроллер + SoC + результат)."
+title: "[Compat] <производитель> <модель> — <SoC>"
+labels: ["compatibility"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Спасибо за отчёт! Эти данные помогают строить матрицу совместимости в README.
+        Контроллер и SoC можно посмотреть на экране **«Готовность устройства»** в приложении.
+
+  - type: input
+    id: device
+    attributes:
+      label: Устройство / Device
+      description: Производитель, модель, кодовое имя
+      placeholder: "Xiaomi Mi 8 Lite (platina)"
+    validations:
+      required: true
+
+  - type: input
+    id: soc
+    attributes:
+      label: SoC
+      placeholder: "Qualcomm SDM660"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: controller
+    attributes:
+      label: USB-контроллер / USB controller
+      description: Показан на экране «Готовность устройства»
+      options:
+        - "DWC3"
+        - "DWC2"
+        - "MUSB"
+        - "Другой / Other (укажи ниже)"
+        - "Не знаю / Unknown"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: result
+    attributes:
+      label: Результат / Result
+      options:
+        - "✅ Работает — ПК загрузился с образа"
+        - "🟡 Хост видит диск, но загрузка не пошла"
+        - "🟡 Гаджет поднялся, хост диск не увидел"
+        - "❌ Краш / ребут / зависание"
+        - "❌ Не удалось поднять гаджет"
+    validations:
+      required: true
+
+  - type: input
+    id: android
+    attributes:
+      label: Android / прошивка, версия ядра
+      placeholder: "MIUI 12, kernel 4.4.192"
+    validations:
+      required: false
+
+  - type: input
+    id: root
+    attributes:
+      label: Root
+      placeholder: "Magisk 27 / KernelSU"
+    validations:
+      required: false
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Подробности / Details
+      description: Что выбирал (режим, образ), что произошло, логи из «Диагностики», dmesg при краше и т.п.
+      placeholder: "Режим UEFI (CD-ROM), Ubuntu 24.04 ISO. ..."
+    validations:
+      required: false
