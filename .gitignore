@@ -1,0 +1,18 @@
+.gradle/
+build/
+*/build/
+local.properties
+.idea/
+.kotlin/
+.DS_Store
+captures/
+*.apk
+*.aab
+
+# Signing / secrets — НИКОГДА не коммитить
+*.jks
+*.keystore
+keystore.properties
+
+# Локальные заметки ассистента
+.claude/
